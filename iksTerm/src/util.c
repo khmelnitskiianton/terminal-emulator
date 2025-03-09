@@ -59,12 +59,12 @@ void get_options(term_t* term, pty_t *pty, int argc, char **argv) {
             case 'w': {
                 int custom_width = atoi(optarg);
                 if (custom_width > 0)
-                    term->buffer_width = (uint) custom_width;
+                    term->buffer_width = (int) custom_width;
             } break;
             case 'l': {
                 int custom_height = atoi(optarg);
                 if (custom_height > 0)
-                    term->buffer_height = (uint) custom_height;
+                    term->buffer_height = (int) custom_height;
             } break;
             case 'f': {
                 char *custom_hex_color = optarg;

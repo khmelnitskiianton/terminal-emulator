@@ -2,6 +2,7 @@
 #include <stdbool.h>
 #include <stdio.h>
 #include <unistd.h>
+#include <termios.h>
 
 #include <X11/Xutil.h>
 
@@ -32,7 +33,6 @@ bool pty_new(pty_t *pty) {
         perror("openpty");
         return false;
     }
-
     /* 
      * Create new process for shell
      */
@@ -47,6 +47,26 @@ bool pty_new(pty_t *pty) {
         setsid();
         if (ioctl(pty->fd_slave, TIOCSCTTY, NULL) == -1) {
             perror("ioctl(TIOCSCTTY)");
+            return false;
+        }
+
+        // Set termios mode to configure reading bytes from pty slave:
+        struct termios tios;
+        if (tcgetattr(pty->fd_slave, &tios) == -1) {
+            perror("tcgetattr");
+            return false;
+        }
+        tios.c_lflag |=  ICANON | ECHO;
+        tios.c_oflag |= OPOST | ONLCR;    // ONLCR: convert \n в \r\n when reading
+        tios.c_iflag |= ICRNL;            // ICRNL: convert \r в \n when writing
+        
+        // Disabling the output of control characters in the form of carriage notation.
+        // ECHOCTL (sometimes called ECHOE or ECHOECTL) is responsible for displaying ^M instead of the CR character.
+        #ifdef ECHOCTL
+        tios.c_lflag &= ~ECHOCTL;
+        #endif
+        if (tcsetattr(pty->fd_slave, TCSANOW, &tios) == -1) {
+            perror("tcsetattr");
             return false;
         }
 
@@ -73,12 +93,12 @@ bool pty_new(pty_t *pty) {
  * \brief Change sizes of terminal's window
  */
 bool term_resize(term_t *term, pty_t *pty, XEvent *event) {
-    uint new_width  = (uint) event->xconfigure.width;
-    uint new_height = (uint) event->xconfigure.height;
+    int new_width  = (int) event->xconfigure.width;
+    int new_height = (int) event->xconfigure.height;
 	if (new_width == term->width && new_height == term->height)
 		return false;
-    uint new_buffer_width = new_width / term->font_width;
-    uint new_buffer_height = new_height / term->font_height;
+    int new_buffer_width = new_width / term->font_width;
+    int new_buffer_height = new_height / term->font_height;
     term_move_buffer(term, new_buffer_width, new_buffer_height);
     term->width = new_width;
     term->height = new_height;
@@ -112,6 +132,11 @@ void term_pty_write(pty_t *pty, XKeyEvent *ev) {
     char buf[32] = {};
     KeySym ksym = 0;
     size_t num = (size_t) XLookupString(ev, buf, sizeof(buf), &ksym, 0);
+    printf("Write:\n");
+    for (int i = 0; i < num; i++) {
+        printf("%d ", buf[i]);
+    }
+    printf("N: %d\n", num);
     if (num > 0) {
         if (write(pty->fd_master, buf, num) == -1) {
             perror("write");
@@ -131,8 +156,8 @@ void term_pty_read(term_t *term, pty_t *pty) {
     }
     char buf[1] = {};
     XSetForeground(term->display, term->graphics_context, term->color_fg);
-    for (uint y = 0; y < term->buffer_height; y++) {
-        for (uint x = 0; x < term->buffer_width; x++) {
+    for (int y = 0; y < term->buffer_height; y++) {
+        for (int x = 0; x < term->buffer_width; x++) {
             buf[0] = term->buffer[y * term->buffer_width + x];
             // Filter non-printables
             if (!IS_PRINTABLE_ASCII(buf[0]) /*&& !IS_PRINTABLE_UNICODE(buf[0])*/) {

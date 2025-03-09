@@ -22,13 +22,15 @@ typedef struct term_t {
     // Font
     char *font_name;
     XFontStruct *font;
-    uint font_width, font_height;
+    int font_width, font_height;
 
     // Buffer
     char *buffer;
-    uint buffer_x, buffer_y, buffer_width, buffer_height;
+    int buffer_x, buffer_y; // cursor
+    int buffer_width, buffer_height; // cols and rows
+    int buffer_prompt_x, buffer_prompt_y; // where user input begins
     // Actual terminal size in pixels
-    uint width, height;
+    int width, height;
     
     // Array of pointers to command strings
     char **history;
@@ -43,6 +45,6 @@ void term_output(term_t *term, char *buf, ssize_t n);
 void term_set_color(term_t *term);
 void term_set_font(term_t *term);
 bool term_set_buffer(term_t *term);
-bool term_move_buffer(term_t *term, uint new_buffer_width, uint new_buffer_height);
+bool term_move_buffer(term_t *term, int new_buffer_width, int new_buffer_height);
 
 #endif

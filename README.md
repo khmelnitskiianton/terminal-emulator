@@ -1,5 +1,7 @@
 # terminal-emulator
 
+[![License: WTFPL](https://img.shields.io/badge/License-WTFPL-brightgreen.svg)](http://www.wtfpl.net/about/)
+
 Simple implementation of terminal-emulator in Linux
 
 Consist of two programs:

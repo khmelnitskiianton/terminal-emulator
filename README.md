@@ -1,13 +1,13 @@
 # terminal-emulator
 
-[![License: WTFPL](https://img.shields.io/badge/License-WTFPL-brightgreen.svg)](http://www.wtfpl.net/about/)
+![License](https://img.shields.io/github/license/khmelnitskiianton/terminal-emulator)
 
-Simple implementation of terminal-emulator in Linux
+A simple implementation of a terminal emulator for Linux, featuring a GUI terminal (`iksTerm`) and a basic shell (`iksSh`).
 
 Consist of two programs:
 
-- *iksTerm* - GUI terminal that you can launch on any shell or program
-- *iksSh*   - simple shell
+- `iksTerm` - X11 terminal that you can launch on any shell or program.
+- `iksSh`   - simple shell.
 
 ## iksTerm
 
@@ -40,3 +40,7 @@ iksTerm -h
 ## iksSh
 
 `in stage of development`
+
+## License
+
+This project is licensed under the WTFPL License. See the [LICENSE](LICENSE) file for details.

@@ -11,7 +11,7 @@ Consist of two programs:
 
 ## iksTerm
 
-![iksTerm](./.media/iksTerm.png)
+![terminal](https://github.com/user-attachments/assets/780017d9-5f8f-49d4-8e3b-e15e2cae9cfa)
 
 Written on C using X11 and PTY, simple terminal that launches shell and can run different command.
 

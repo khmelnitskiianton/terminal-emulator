@@ -59,7 +59,9 @@ bool pty_new(pty_t *pty) {
         tios.c_lflag |=  ICANON | ECHO;
         tios.c_oflag |= OPOST | ONLCR;    // ONLCR: convert \n в \r\n when reading
         tios.c_iflag |= ICRNL;            // ICRNL: convert \r в \n when writing
-        
+
+        tios.c_cc[VERASE] = 0x08; // Set that driver clean from buffer backspace symbol like VERASE, to have `ls` except of `ls \b s`
+
         // Disabling the output of control characters in the form of carriage notation.
         // ECHOCTL (sometimes called ECHOE or ECHOECTL) is responsible for displaying ^M instead of the CR character.
         #ifdef ECHOCTL

@@ -1,7 +1,7 @@
 #include <stdbool.h>
 
-#include <X11/Xutil.h>
 #include <X11/Xlib.h>
+#include <X11/Xutil.h>
 
 #include "term.h"
 #include "term_pty.h"

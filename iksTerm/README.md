@@ -57,7 +57,7 @@ In basic version we have:
 - Different options to setup terminal
 - Entering text and sending it to shell
 - See shell output
-
+- Use popular control symbols
 ## Future Development
 
 - [x] Resizing
@@ -65,4 +65,4 @@ In basic version we have:
 - [ ] Process control sequences & signals
 - [ ] UTF-8 except of ASCII
 - [ ] Keep history and get it by arrows
-- [ ] More keys to move cursor(`\b`)
+- [x] Handle more control chars (`\b`)

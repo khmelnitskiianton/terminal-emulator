@@ -6,15 +6,15 @@
 
 #include <sys/types.h>
 
-#include <X11/Xutil.h>
 #include <X11/Xlib.h>
+#include <X11/Xutil.h>
 
 #include <main.h>
 #include <term.h>
 #include <term_pty.h>
 #include <util.h>
 
-static bool just_wrapped = false; // flag to avoid double moving next line
+static bool just_wrapped = false;// flag to avoid double moving next line
 
 /*!
  * \brief Initialize and setup X11 window for terminal
@@ -32,9 +32,8 @@ bool term_init(term_t *term) {
     // Window attributes
     XSetWindowAttributes winattr = {
         .background_pixmap = ParentRelative,
-        .event_mask = FocusChangeMask | KeyPressMask | KeyReleaseMask
-		| ExposureMask | VisibilityChangeMask | StructureNotifyMask
-		| ButtonMotionMask | ButtonPressMask | ButtonReleaseMask | ClientMessage,
+        .event_mask = FocusChangeMask | KeyPressMask | KeyReleaseMask | ExposureMask | VisibilityChangeMask |
+                      StructureNotifyMask | ButtonMotionMask | ButtonPressMask | ButtonReleaseMask | ClientMessage,
     };
     // Set colors
     term_set_color(term);
@@ -53,8 +52,8 @@ bool term_init(term_t *term) {
                                  term->root,
                                  0,
                                  0,
-                                 term->width,
-                                 term->height,
+                                 (uint) term->width,
+                                 (uint) term->height,
                                  0,
                                  DefaultDepth(term->display, term->screen),
                                  CopyFromParent,
@@ -66,10 +65,10 @@ bool term_init(term_t *term) {
     XSetWMProtocols(term->display, term->window, &term->wm_delete, 1);
     // Set resizing with hint
     term->hints.flags = PBaseSize | PResizeInc;
-    term->hints.base_width =  term->font_width;    // Базовая ширина окна
-    term->hints.base_height =  term->font_height;  // Базовая высота окна
-    term->hints.width_inc =  term->font_width;     // Шаг изменения ширины (по горизонтали)
-    term->hints.height_inc =  term->font_height;   // Шаг изменения высоты (по вертикали)
+    term->hints.base_width = term->font_width;  // Базовая ширина окна
+    term->hints.base_height = term->font_height;// Базовая высота окна
+    term->hints.width_inc = term->font_width;   // Шаг изменения ширины (по горизонтали)
+    term->hints.height_inc = term->font_height; // Шаг изменения высоты (по вертикали)
     XSetWMNormalHints(term->display, term->window, &term->hints);
     // Map window
     XStoreName(term->display, term->window, TERM_NAME);
@@ -82,14 +81,14 @@ bool term_init(term_t *term) {
 }
 
 bool term_move_buffer(term_t *term, int new_buffer_width, int new_buffer_height) {
-    char* new_buffer = calloc((long unsigned int) new_buffer_width * (long unsigned int) new_buffer_height, sizeof(char));
+    char *new_buffer = calloc((long unsigned int) new_buffer_width * (long unsigned int) new_buffer_height, sizeof(char));
     if (!new_buffer) {
         perror("calloc");
         return false;
     }
     //for (int current_row = 0; current_row < (term->buffer_height - new_buffer_height); current_row++) {
-	//	term_scroll_buffer(term);
-	//}
+    //	term_scroll_buffer(term);
+    //}
     int last_non_empty = 0;
     for (int i = 0; i < term->buffer_height; i++) {
         bool row_has_content = false;
@@ -105,25 +104,27 @@ bool term_move_buffer(term_t *term, int new_buffer_width, int new_buffer_height)
     }
     int effective_rows = last_non_empty + 1;
     int start_row = 0;
-    if (new_buffer_height <= term->buffer_height) 
+    if (new_buffer_height <= term->buffer_height)
         start_row = (effective_rows > new_buffer_height) ? (effective_rows - new_buffer_height) : 0;
-    
+
     int rows_to_copy = MIN(new_buffer_height, term->buffer_height - start_row);
     int min_width = MIN(new_buffer_width, term->buffer_width);
 
     for (int i = 0; i < rows_to_copy; i++) {
-        memcpy(new_buffer + i*new_buffer_width, term->buffer + (i + start_row)*term->buffer_width, min_width*sizeof(char));
+        memcpy(new_buffer + i * new_buffer_width,
+               term->buffer + (i + start_row) * term->buffer_width,
+               (size_t) min_width * sizeof(char));
     }
     free(term->buffer);
     term->buffer = new_buffer;
     term->buffer_width = new_buffer_width;
-    term->buffer_height = new_buffer_height;  // Update this only if you're changing the total rows count.
-    if (term->buffer_x >= new_buffer_width) { 
+    term->buffer_height = new_buffer_height;// Update this only if you're changing the total rows count.
+    if (term->buffer_x >= new_buffer_width) {
         term->buffer_x = 0;
         term->buffer_y = term->buffer_y + 1;
     }
-    if (term->buffer_y >= new_buffer_height) { 
-        term->buffer_y = new_buffer_height-1;
+    if (term->buffer_y >= new_buffer_height) {
+        term->buffer_y = new_buffer_height - 1;
     }
     return true;
 }
@@ -133,27 +134,30 @@ bool term_move_buffer(term_t *term, int new_buffer_width, int new_buffer_height)
  */
 void term_draw(term_t *term) {
     XSetForeground(term->display, term->graphics_context, term->color_bg);
-    XFillRectangle(term->display, term->window, term->graphics_context, 0, 0, term->width, term->height);
+    XFillRectangle(term->display, term->window, term->graphics_context, 0, 0, (uint) term->width, (uint) term->height);
     char ch = 0;
     char *buf = &ch;
     XSetForeground(term->display, term->graphics_context, term->color_fg);
     for (int y = 0; y < term->buffer_height; y++) {
         for (int x = 0; x < term->buffer_width; x++) {
             *buf = term->buffer[y * term->buffer_width + x];
-            printf("%d ", *buf);
+
+            //printf("%d ", *buf);
+
             // Filter non-printables
             if (!IS_PRINTABLE_ASCII(*buf) /*&& !IS_PRINTABLE_UNICODE(buf[0])*/) {
-                continue; // Unicode replacement character <unknown>
+                continue;// Unicode replacement character <unknown>
             }
             XDrawString(term->display,
                         term->window,
                         term->graphics_context,
-                         (x * term->font_width),
-                         (y * term->font_height) + term->font->ascent + term->font->descent,
+                        (x * term->font_width),
+                        (y * term->font_height) + term->font->ascent + term->font->descent,
                         buf,
                         1);
         }
-        printf("\n");
+
+        //printf("\n");
     }
 
     XSetForeground(term->display, term->graphics_context, term->color_cursor);
@@ -162,8 +166,8 @@ void term_draw(term_t *term) {
                    term->graphics_context,
                    term->buffer_x * term->font_width,
                    term->buffer_y * term->font_height,
-                   term->font_width,
-                   term->font_height + term->font->descent);
+                   (uint) term->font_width,
+                   (uint) term->font_height + (uint) term->font->descent);
 
     XFlush(term->display);
 }
@@ -172,7 +176,7 @@ void term_draw(term_t *term) {
  * \brief Scroll terminal for one line
  */
 void term_scroll_buffer(term_t *term) {
-    memmove(term->buffer, &term->buffer[term->buffer_width], term->buffer_width * (term->buffer_height - 1));
+    memmove(term->buffer, &term->buffer[term->buffer_width], (size_t) term->buffer_width * (size_t) (term->buffer_height - 1));
     term->buffer_y = term->buffer_height - 1;
     for (int i = 0; i < term->buffer_width; i++)
         term->buffer[term->buffer_y * term->buffer_width + i] = 0;
@@ -182,50 +186,54 @@ void term_scroll_buffer(term_t *term) {
  * \brief Process data from PTY and changes buffer
  */
 void term_output(term_t *term, char *buf, ssize_t n) {
-    // Carriage Return: Move to start of line
-    printf("Read:\n");
+    //printf("Read:\n");
+    //for (ssize_t i = 0; i < n; i++) {
+    //    printf("%d ", buf[i]);
+    //}
+    //printf("\n");
+
     for (ssize_t i = 0; i < n; i++) {
-        printf("%d ", buf[i]);
         switch (buf[i]) {
             case '\r': /* CR */
-                term->buffer_x = 0; 
+                term->buffer_x = 0;
                 break;
             case '\t': { /* HT */
                 int j = 0;
                 for (; (j < TAB_SIZE) && (term->buffer_x < term->buffer_width); j++) {
-                    term->buffer[term->buffer_y * term->buffer_width + term->buffer_x] = ' '; 
+                    term->buffer[term->buffer_y * term->buffer_width + term->buffer_x] = ' ';
                     term->buffer_x++;
                 }
                 if (j != TAB_SIZE) {
                     term->buffer_x = 0;
                     term->buffer_y++;
                     for (; j < TAB_SIZE; j++) {
-                        term->buffer[term->buffer_y * term->buffer_width + term->buffer_x] = ' '; 
+                        term->buffer[term->buffer_y * term->buffer_width + term->buffer_x] = ' ';
                         term->buffer_x++;
                     }
                 }
-            }
-                break;
+            } break;
             case '\b': { /* BR*/
                 if ((term->buffer_x == term->buffer_prompt_x) && (term->buffer_y == term->buffer_prompt_y))
                     break;
-                term->buffer[term->buffer_y * term->buffer_width + term->buffer_x] = '\0'; 
+                term->buffer[term->buffer_y * term->buffer_width + term->buffer_x] = '\0';
                 term->buffer_x--;
                 if (term->buffer_x < 0) {
                     term->buffer_x = term->buffer_width - 1;
-                    if (term->buffer_y != 0)   
+                    if (term->buffer_y != 0)
                         term->buffer_y--;
                 }
-                term->buffer[term->buffer_y * term->buffer_width + term->buffer_x] = '\0'; 
-            }
-                break;    
-            case '\f':   /* LF */
-	        case '\v':   /* VT */
+                term->buffer[term->buffer_y * term->buffer_width + term->buffer_x] = '\0';
+            } break;
+            case '\f': /* LF */
+            case '\v': /* VT */
             case '\n': /* LF */
                 if (!just_wrapped) {
                     term->buffer_y++;
                     just_wrapped = false;
                 }
+                break;
+            case '\033': /* ESC */
+                i += term_parse_esc(term, buf + i) - 1;
                 break;
             // Printable ASCII: Write to buffer and advance cursor
             default:
@@ -247,7 +255,46 @@ void term_output(term_t *term, char *buf, ssize_t n) {
             term->buffer_y = term->buffer_height - 1;
         }
     }
-    printf("\n");
+}
+
+ssize_t term_parse_esc(term_t *term, char *buf) {
+    ssize_t curr_index = 0;
+    if (buf[curr_index] != '\033')
+        return 0;
+    curr_index++;
+    if (buf[curr_index] == '[') {
+        curr_index++;
+        /*
+            Now I process only `clear` sequences
+        */
+        // Check for "ESC [ H" (3 bytes)
+        if (buf[curr_index] == 'H') {
+            handle_cursor_home(term);
+            return curr_index + 1;
+        }
+        // Check for "ESC [ 2 J" (4 bytes)
+        if (buf[curr_index] == '2' && buf[curr_index + 1] == 'J') {
+            handle_clear_screen(term);
+            return curr_index + 2;
+        }
+        // Check for "ESC [ 2 J" (4 bytes)
+        if (buf[curr_index] == '3' && buf[curr_index + 1] == 'J') {
+            //TODO:
+            return curr_index + 2;
+        }
+    } else
+        return curr_index;
+    // means error
+    return 0;
+}
+
+void handle_cursor_home(term_t *term) {
+    term->buffer_x = 0;
+    term->buffer_y = 0;
+}
+
+void handle_clear_screen(term_t *term) {
+    memset(term->buffer, '\0', (size_t) term->buffer_height * (size_t) term->buffer_width);
 }
 
 /*!
@@ -309,8 +356,8 @@ void term_set_font(term_t *term) {
 
 bool term_set_buffer(term_t *term) {
     // Have max width/height of screen
-    int max_width =  DisplayWidth(term->display, term->screen) / term->font_width;
-    int max_height =  DisplayHeight(term->display, term->screen) / term->font_height;
+    int max_width = DisplayWidth(term->display, term->screen) / term->font_width;
+    int max_height = DisplayHeight(term->display, term->screen) / term->font_height;
     // Buffer
     term->buffer_width = (term->buffer_width > 0) ? term->buffer_width : DEFAULT_WIDTH;
     term->buffer_height = (term->buffer_height > 0) ? term->buffer_height : DEFAULT_HEIGHT;

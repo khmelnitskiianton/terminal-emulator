@@ -1,8 +1,8 @@
 #include <pty.h>
 #include <stdbool.h>
 #include <stdio.h>
-#include <unistd.h>
 #include <termios.h>
+#include <unistd.h>
 
 #include <X11/Xutil.h>
 
@@ -56,17 +56,18 @@ bool pty_new(pty_t *pty) {
             perror("tcgetattr");
             return false;
         }
-        tios.c_lflag |=  ICANON | ECHO;
-        tios.c_oflag |= OPOST | ONLCR;    // ONLCR: convert \n в \r\n when reading
-        tios.c_iflag |= ICRNL;            // ICRNL: convert \r в \n when writing
+        tios.c_lflag |= ICANON | ECHO;
+        tios.c_oflag |= OPOST | ONLCR;// ONLCR: convert \n в \r\n when reading
+        tios.c_iflag |= ICRNL;        // ICRNL: convert \r в \n when writing
 
-        tios.c_cc[VERASE] = 0x08; // Set that driver clean from buffer backspace symbol like VERASE, to have `ls` except of `ls \b s`
+        tios.c_cc[VERASE] =
+            0x08;// Set that driver clean from buffer backspace symbol like VERASE, to have `ls` except of `ls \b s`
 
-        // Disabling the output of control characters in the form of carriage notation.
-        // ECHOCTL (sometimes called ECHOE or ECHOECTL) is responsible for displaying ^M instead of the CR character.
-        #ifdef ECHOCTL
-        tios.c_lflag &= ~ECHOCTL;
-        #endif
+// Disabling the output of control characters in the form of carriage notation.
+// ECHOCTL (sometimes called ECHOE or ECHOECTL) is responsible for displaying ^M instead of the CR character.
+#ifdef ECHOCTL
+        tios.c_lflag &= (uint) ~ECHOCTL;
+#endif
         if (tcsetattr(pty->fd_slave, TCSANOW, &tios) == -1) {
             perror("tcsetattr");
             return false;
@@ -95,16 +96,16 @@ bool pty_new(pty_t *pty) {
  * \brief Change sizes of terminal's window
  */
 bool term_resize(term_t *term, pty_t *pty, XEvent *event) {
-    int new_width  = (int) event->xconfigure.width;
+    int new_width = (int) event->xconfigure.width;
     int new_height = (int) event->xconfigure.height;
-	if (new_width == term->width && new_height == term->height)
-		return false;
+    if (new_width == term->width && new_height == term->height)
+        return false;
     int new_buffer_width = new_width / term->font_width;
     int new_buffer_height = new_height / term->font_height;
     term_move_buffer(term, new_buffer_width, new_buffer_height);
     term->width = new_width;
     term->height = new_height;
-    if(!pty_resize(term, pty)) 
+    if (!pty_resize(term, pty))
         return false;
     XClearWindow(term->display, term->window);
     return true;
@@ -134,11 +135,13 @@ void term_pty_write(pty_t *pty, XKeyEvent *ev) {
     char buf[32] = {};
     KeySym ksym = 0;
     size_t num = (size_t) XLookupString(ev, buf, sizeof(buf), &ksym, 0);
-    printf("Write:\n");
-    for (int i = 0; i < num; i++) {
-        printf("%d ", buf[i]);
-    }
-    printf("N: %d\n", num);
+
+    //printf("Write:\n");
+    //for (int i = 0; i < num; i++) {
+    //    printf("%d ", buf[i]);
+    //}
+    //printf("N: %d\n", num);
+
     if (num > 0) {
         if (write(pty->fd_master, buf, num) == -1) {
             perror("write");
@@ -203,7 +206,7 @@ bool run(term_t *term, pty_t *pty) {
             while (XPending(term->display)) {
                 XNextEvent(term->display, &event);
                 if (XFilterEvent(&event, None))
-				    continue;
+                    continue;
                 switch (event.type) {
                     case ClientMessage:
                         if (event.xclient.message_type == XInternAtom(term->display, "WM_PROTOCOLS", True) &&

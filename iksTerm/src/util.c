@@ -1,9 +1,9 @@
+#include <ctype.h>
 #include <getopt.h>
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <ctype.h>
 #include <unistd.h>
 
 #include <sys/stat.h>
@@ -18,7 +18,7 @@
 /*!
  * \brief Get and setup options
  */
-void get_options(term_t* term, pty_t *pty, int argc, char **argv) {
+void get_options(term_t *term, pty_t *pty, int argc, char **argv) {
     // Scan options
     int c;
     while (true) {
@@ -99,8 +99,7 @@ void get_options(term_t* term, pty_t *pty, int argc, char **argv) {
                     char *find_shell_name = strrchr(pty->shell_path, '/');// Find last '/' in the path
                     if (find_shell_name)
                         pty->shell_name = find_shell_name + 1;
-                }
-                else 
+                } else
                     pty->shell_path = NULL;
                 break;
             case 'o':

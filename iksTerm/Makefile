@@ -18,29 +18,33 @@ COMPILEJSON = compile_commands.json
 #Install dir
 PREFIX ?= $(HOME)/.local
 INSTALL_DIR := $(PREFIX)/bin
+# Use MAN_DIR from environment if set, otherwise default to /usr/local/share/man/man1
+MAN_DIR ?= /usr/local/share/man/man1
 
 
-CFLAGS_DEBUG_LINUX = -D _DEBUG -DDEBUG -DNDEBUG -ggdb3 -O0 -Wall -Wextra					\
-				-Waggressive-loop-optimizations -Wmissing-declarations -Wcast-align 				\
-				-Wcast-qual -Wchar-subscripts -Wconversion  		\
-				-Wempty-body -Wfloat-equal -Wformat-nonliteral -Wformat-security -Wformat-signedness 			\
-				-Wformat=2 -Winline -Wlogical-op -Wopenmp-simd  			\
-				-Wpacked -Wpointer-arith -Winit-self -Wredundant-decls -Wshadow -Wsign-conversion 				\
-				-Wstrict-overflow=2 			\
-				-Wsuggest-final-methods -Wsuggest-final-types -Wswitch-default 				\
-				-Wswitch-enum -Wsync-nand -Wundef -Wunreachable-code -Wunused 					\
-				-Wvariadic-macros  -Wno-missing-field-initializers 							\
-				-Wno-narrowing -Wno-varargs -Wstack-protector -fcheck-new 					\
-				-fstack-protector -fstrict-overflow 										\
-				-fno-omit-frame-pointer -Wlarger-than=80000 -Wstack-usage=8192 -pie -fPIE -Werror=vla 			\
-				-fsanitize=address,alignment,bool,bounds,enum,float-cast-overflow,float-divide-by-zero,$\
-				integer-divide-by-zero,leak,nonnull-attribute,null,object-size,return,$\
-				returns-nonnull-attribute,shift,signed-integer-overflow,undefined,unreachable,vla-bound,vptr
+#CFLAGS_DEBUG_LINUX = -D _DEBUG -DDEBUG -DNDEBUG -ggdb3 -O0 -Wall -Wextra										\
+#				-Waggressive-loop-optimizations -Wmissing-declarations -Wcast-align 							\
+#				-Wcast-qual -Wchar-subscripts -Wconversion  													\
+#				-Wempty-body -Wfloat-equal -Wformat-nonliteral -Wformat-security -Wformat-signedness 			\
+#				-Wformat=2 -Winline -Wlogical-op -Wopenmp-simd  												\
+#				-Wpacked -Wpointer-arith -Winit-self -Wredundant-decls -Wshadow -Wsign-conversion 				\
+#				-Wstrict-overflow=2 																			\
+#				-Wsuggest-final-methods -Wsuggest-final-types -Wswitch-default 									\
+#				-Wswitch-enum -Wsync-nand -Wundef -Wunreachable-code -Wunused 									\
+#				-Wvariadic-macros  -Wno-missing-field-initializers 												\
+#				-Wno-narrowing -Wno-varargs -Wstack-protector -fcheck-new 										\
+#				-fstack-protector -fstrict-overflow 															\
+#				-fno-omit-frame-pointer -Wlarger-than=80000 -Wstack-usage=8192 -pie -fPIE -Werror=vla 			\
+#				-fsanitize=address,alignment,bool,bounds,enum,float-cast-overflow,float-divide-by-zero,$\
+#				integer-divide-by-zero,leak,nonnull-attribute,null,object-size,return,$\
+#				returns-nonnull-attribute,shift,signed-integer-overflow,undefined,unreachable,vla-bound,vptr
+CFLAGS_RELEASE_LINUX = -O3
 
 CMD_DEL = @rm -rf ./$(OBJDIR)/*.o ./$(OBJDIR)/*.d ./$(BUILDDIR)/*.json
 CMD_MKDIR = @mkdir -p $(BUILDDIR) $(OBJDIR)
 
-override CFLAGS += -I./$(INCLUDEDIR) $(CFLAGS_DEBUG_LINUX) -lX11
+override CFLAGS += -I./$(INCLUDEDIR) $(CFLAGS_DEBUG_LINUX) $(CFLAGS_RELEASE_LINUX)
+override LDFLAGS += -lX11
 
 # Debug build settings
 DBGDIR = debug
@@ -49,7 +53,7 @@ DBGEXE = $(DBGDIR)/$(NAME)
 RELDIR = bin
 RELEXE = $(RELDIR)/$(NAME)
 
-.PHONY: all init compile clean debug release install
+.PHONY: all init compile clean debug release install man
 
 all: compile
 
@@ -73,17 +77,20 @@ init:
 compile:
 	make init
 	bear --output $(BUILDDIR)/$(COMPILEJSON) -- make release
-	#rm -rf $(BUILDDIR)
 
 #Deletes all object and .d files
 clean:
 	$(CMD_DEL)
 
-install:
+install: man
 	@echo "Installing $(RELEXE) to $(INSTALL_DIR)"
 	@install -d $(INSTALL_DIR)
 	@install -m 755 $(RELEXE) $(INSTALL_DIR)
 	@echo "Installation complete"
+
+man:
+	sudo cp ./iksTerm.1 $(MAN_DIR)/
+	mandb
 
 #====================================================================
 
@@ -95,7 +102,7 @@ $(DBGEXE): $(OBJS)
 $(RELEXE): $(OBJS)
 	@mkdir -p $(BUILDDIR) $(OBJDIR)
 	@mkdir -p $(RELDIR)
-	$(CC) $(CFLAGS) $^ -o $@
+	$(CC) $(CFLAGS) $^ -o $@ $(LDFLAGS)
 
 #Automatic target to compile object files
 $(OBJS) : $(OBJDIR)/%.o : $(SRCDIR)/%.c
@@ -110,7 +117,7 @@ $(DEPS) : $(OBJDIR)/%.d : $(SRCDIR)/%.c
 
 #====================================================================
 # Var consist of all aims that dont need to update deps!!!
-NODEPS = clean init install
+NODEPS = clean init install man
 
 #Includes make dependencies
 ifeq (0, $(words $(findstring $(MAKECMDGOALS), $(NODEPS))))

@@ -1,0 +1,94 @@
+.TH iksTerm 1 "March 2025" "iksTerm v1.0" "User Commands"
+.SH NAME
+iksTerm \- simple terminal emulator on X11
+.SH SYNOPSIS
+.B iksTerm
+[\-h | --help] [\-wNUM | --width=NUM] [\-lNUM | --length=NUM] [\-fHEX_NUM | --foreground=HEX_NUM] [\-bHEX_NUM | --background=HEX_NUM] [\-cHEX_NUM | --cursor=HEX_NUM] [\-sPATH | --shell=PATH] [\-oNAME | --font=NAME]
+.SH DESCRIPTION
+iksTerm (XTerminal) is a simple terminal emulator for X11. The project is hosted on GitHub at
+.BR "https://github.com/khmelnitskiianton/terminal-emulator"
+.SH OPTIONS
+.TP
+.B \-h, --help
+Show help and exit.
+.TP
+.B \-wNUM, --width=NUM
+Set the width of the terminal window in cells. Default is 80.
+.TP
+.B \-lNUM, --length=NUM
+Set the length of the terminal window in cells. Default is 40.
+.TP
+.B \-fHEX_NUM, --foreground=HEX_NUM
+Set the foreground (text) color in hexadecimal format (e.g. "#ffffff"). Default is "#ffffff".
+.TP
+.B \-bHEX_NUM, --background=HEX_NUM
+Set the background color in hexadecimal format (e.g. "#000000"). Default is "#000000".
+.TP
+.B \-cHEX_NUM, --cursor=HEX_NUM
+Set the cursor color in hexadecimal format (e.g. "#777777"). Default is "#777777".
+.TP
+.B \-sPATH, --shell=PATH
+Set the shell to be launched in the terminal. Default is "/bin/sh".
+.TP
+.B \-oNAME, --font=NAME
+Set the font to be used by X11 (use `xlsfonts` to list available fonts). Default is "fixed".
+.SH FEATURES
+This GUI terminal provides user simple interface to communicate with shell.
+The basic version of iksTerm provides the following features and opportunities:
+.IP "Resizing and moving:"
+    The terminal window can be dynamically resized while preserving the current screen content,
+    allowing for flexible display configurations.
+.IP "Input and Output Handling:"
+    Standard input editing is supported in canonical mode. This includes proper handling of 
+    backspace, as well as control sequences for the clear command (specifically, ESC [ H, ESC [ 2 J,
+    and ESC [ 3 J) that allow clearing the screen.
+.IP "Shell Integration:"
+    A pseudoterminal (PTY) is established between the terminal emulator and the shell (default /bin/sh),
+    enabling full interactive command execution with real-time output.
+.IP "Customizable Appearance:"
+    The appearance of the terminal is fully configurable through command-line options. You can set
+    the terminal's width and length (in cells), choose a font from X11 (e.g. "fixed" or "helvetica"), and
+    define custom color schemes for the foreground, background, and cursor.
+.SH EXAMPLES
+.IP "$ iksTerm --width=100 -s/bin/bash -c\"#aaa000\""
+Set custom width, shell, and cursor color.
+.IP "$ iksTerm -l56 --foreground=\"#FF00FF\" -o\"helvetica\""
+Set length, foreground color, and font.
+.SH STRUCTURE OF TERMINAL EMULATION
+The terminal emulation is based on three components:
+.IP "- Terminal:"
+A graphical X11 application that displays the terminal window.
+.IP "- Shell:"
+A program that provides an interface to the operating system (e.g., /bin/sh).
+.IP "- PTY:"
+A pseudoterminal that creates a bi-directional channel between the Terminal and the Shell.
+.P
+Together, these components form a communication channel between the X11 terminal and the shell.
+.SH WARNING
+Be advised that iksTerm is primarily designed to work with simple shells (such as /bin/sh). More complex shells may not be fully supported and might exhibit unexpected behavior.
+.SH FUTURE DEVELOPMENT
+Planned enhancements include:
+.IP "[x] Resizing"
+Dynamic resizing of the terminal while preserving previous content.
+.IP "[ ] Custom font upload (improve)"
+Enhanced support for user-specified fonts.
+.IP "[ ] Process control sequences & signals"
+Improved handling of additional terminal control sequences.
+.IP "[ ] UTF-8 support"
+Support for UTF-8 encoding (currently supports only ASCII).
+.IP "[ ] History navigation with arrow keys"
+Implementation of a fixed-size history and navigation via arrow keys.
+.IP "[x] Handling of backspace and clear command control sequences"
+Proper processing of control characters such as backspace and clear (ESC [ H, ESC [ 2 J, ESC [ 3 J).
+.SH SEE ALSO
+.BR xterm (1),
+.BR sh (1),
+.BR openpty (3),
+.BR Xorg (1),
+.BR X11 (7)
+.SH AUTHOR
+khmelnitskiianton
+.SH SOURCE
+GitHub repository:
+.IP
+.BR "https://github.com/khmelnitskiianton/terminal-emulator"

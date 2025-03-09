@@ -31,7 +31,7 @@ Folder with sources: `iksTerm/`
 cd ./iksTerm
 make # compile program in "bin/" dir
 make install
-man iksTerm
+man iksTerm # Man page of iksTerm
 iksTerm -h
 ```
 

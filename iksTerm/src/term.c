@@ -86,9 +86,6 @@ bool term_move_buffer(term_t *term, int new_buffer_width, int new_buffer_height)
         perror("calloc");
         return false;
     }
-    //for (int current_row = 0; current_row < (term->buffer_height - new_buffer_height); current_row++) {
-    //	term_scroll_buffer(term);
-    //}
     int last_non_empty = 0;
     for (int i = 0; i < term->buffer_height; i++) {
         bool row_has_content = false;
@@ -186,11 +183,12 @@ void term_scroll_buffer(term_t *term) {
  * \brief Process data from PTY and changes buffer
  */
 void term_output(term_t *term, char *buf, ssize_t n) {
-    //printf("Read:\n");
-    //for (ssize_t i = 0; i < n; i++) {
-    //    printf("%d ", buf[i]);
-    //}
-    //printf("\n");
+    
+    // printf("Read:\n");
+    // for (ssize_t i = 0; i < n; i++) {
+    //     printf("%d ", buf[i]);
+    // }
+    // printf("\n");
 
     for (ssize_t i = 0; i < n; i++) {
         switch (buf[i]) {
@@ -260,7 +258,7 @@ void term_output(term_t *term, char *buf, ssize_t n) {
 ssize_t term_parse_esc(term_t *term, char *buf) {
     ssize_t curr_index = 0;
     if (buf[curr_index] != '\033')
-        return 0;
+        return 1;
     curr_index++;
     if (buf[curr_index] == '[') {
         curr_index++;
@@ -282,10 +280,9 @@ ssize_t term_parse_esc(term_t *term, char *buf) {
             //TODO:
             return curr_index + 2;
         }
-    } else
-        return curr_index;
+    }
     // means error
-    return 0;
+    return curr_index;
 }
 
 void handle_cursor_home(term_t *term) {
@@ -295,28 +292,6 @@ void handle_cursor_home(term_t *term) {
 
 void handle_clear_screen(term_t *term) {
     memset(term->buffer, '\0', (size_t) term->buffer_height * (size_t) term->buffer_width);
-}
-
-/*!
- * \brief Destroys terminal
- */
-bool term_destroy(term_t *term) {
-    // Cleanup resources
-    XFreeGC(term->display, term->graphics_context);
-    XFreeFont(term->display, term->font);
-    XUnmapWindow(term->display, term->window);
-    XDestroyWindow(term->display, term->window);
-    XCloseDisplay(term->display);
-    free(term->buffer);
-    return true;
-}
-
-/*!
- * \brief Destroys terminal and exit program
- */
-void term_catch_error(term_t *term) {
-    term_destroy(term);
-    exit(1);
 }
 
 void term_set_color(term_t *term) {

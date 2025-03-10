@@ -11,13 +11,17 @@ typedef struct pty_t {
     // Master and slave file descriptors
     int fd_master;
     int fd_slave;
+    pid_t pid;
 } pty_t;
 
 bool pty_new(pty_t *pty);
 bool term_resize(term_t *term, pty_t *pty, XEvent *event);
 bool pty_resize(term_t *term, pty_t *pty);
 void term_pty_write(pty_t *pty, XKeyEvent *ev);
-void term_pty_read(term_t *term, pty_t *pty);
+bool term_pty_read(term_t *term, pty_t *pty);
 bool run(term_t *term, pty_t *pty);
+
+bool term_destroy(term_t *term, pty_t *pty);
+void term_catch_error(term_t *term, pty_t *pty);
 
 #endif

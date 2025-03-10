@@ -50,10 +50,12 @@ The basic version of iksTerm provides the following features and opportunities:
     the terminal's width and length (in cells), choose a font from X11 (e.g. "fixed" or "helvetica"), and
     define custom color schemes for the foreground, background, and cursor.
 .SH EXAMPLES
-.IP "$ iksTerm --width=100 -s/bin/bash -c\"#aaa000\""
-Set custom width, shell, and cursor color.
-.IP "$ iksTerm -l56 --foreground=\"#FF00FF\" -o\"helvetica\""
-Set length, foreground color, and font.
+.nf
+    $ iksTerm --width=100 -s/bin/bash -c"#aaa000"
+        Set custom width, shell, and cursor color.
+    $ iksTerm -l56 --foreground="#FF00FF" -o"helvetica"
+        Set length, foreground color, and font.
+.fi
 .SH STRUCTURE OF TERMINAL EMULATION
 The terminal emulation is based on three components:
 .IP "- Terminal:"

@@ -36,8 +36,6 @@ typedef struct term_t {
     char **history;
 } term_t;
 
-bool term_destroy(term_t *term);
-void term_catch_error(term_t *term);
 bool term_init(term_t *term);
 void term_draw(term_t *term);
 void term_scroll_buffer(term_t *term);

@@ -58,6 +58,7 @@ In basic version we have:
 - Entering text and sending it to shell
 - See shell output
 - Use popular control symbols
+
 ## Future Development
 
 - [x] Resizing

@@ -55,7 +55,7 @@ RELEXE = $(RELDIR)/$(NAME)
 
 .PHONY: all init compile clean debug release install man
 
-all: compile
+all: init release
 
 release: $(RELEXE)
 debug: $(DBGEXE)
@@ -72,10 +72,9 @@ DEPS := $(OBJS:%.o=%.d)
 
 #====================================================================
 init:
-	@mkdir -p $(BUILDDIR) $(OBJDIR)
+	@mkdir -p $(BUILDDIR) $(OBJDIR) $(RELDIR)
 
-compile:
-	make init
+compile: init
 	bear --output $(BUILDDIR)/$(COMPILEJSON) -- make release
 
 #Deletes all object and .d files
@@ -90,7 +89,7 @@ install: man
 
 man:
 	sudo cp ./iksTerm.1 $(MAN_DIR)/
-	mandb
+	sudo mandb
 
 #====================================================================
 

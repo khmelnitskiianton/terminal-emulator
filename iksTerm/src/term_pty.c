@@ -3,6 +3,8 @@
 #include <stdio.h>
 #include <termios.h>
 #include <unistd.h>
+#include <stdlib.h>
+#include <sys/wait.h>
 
 #include <X11/Xutil.h>
 
@@ -36,8 +38,8 @@ bool pty_new(pty_t *pty) {
     /* 
      * Create new process for shell
      */
-    pid_t pid = fork();
-    if (pid == 0) {
+    pty->pid = fork();
+    if (pty->pid == 0) {
         close(pty->fd_master);
 
         /* 
@@ -63,11 +65,11 @@ bool pty_new(pty_t *pty) {
         tios.c_cc[VERASE] =
             0x08;// Set that driver clean from buffer backspace symbol like VERASE, to have `ls` except of `ls \b s`
 
-// Disabling the output of control characters in the form of carriage notation.
-// ECHOCTL (sometimes called ECHOE or ECHOECTL) is responsible for displaying ^M instead of the CR character.
-#ifdef ECHOCTL
-        tios.c_lflag &= (uint) ~ECHOCTL;
-#endif
+        // Disabling the output of control characters in the form of carriage notation.
+        // ECHOCTL (sometimes called ECHOE or ECHOECTL) is responsible for displaying ^M instead of the CR character.
+        #ifdef ECHOCTL
+            tios.c_lflag &= (uint) ~ECHOCTL;
+        #endif
         if (tcsetattr(pty->fd_slave, TCSANOW, &tios) == -1) {
             perror("tcsetattr");
             return false;
@@ -153,9 +155,14 @@ void term_pty_write(pty_t *pty, XKeyEvent *ev) {
 /*!
  * \brief Read from PTY new data and draw it on the screen 
  */
-void term_pty_read(term_t *term, pty_t *pty) {
+bool term_pty_read(term_t *term, pty_t *pty) {
     char buf_read[READ_BUFFER_SIZE];
     ssize_t n = read(pty->fd_master, buf_read, sizeof(buf_read));
+    
+    // EOF indicates that the slave has closed.
+    if (n <= 0) {
+        return false;
+    }
     if (n > 0) {
         term_output(term, buf_read, n);
     }
@@ -177,6 +184,29 @@ void term_pty_read(term_t *term, pty_t *pty) {
                         1);
         }
     }
+    return true;
+}
+
+/*!
+ * \brief Destroys terminal
+ */
+bool term_destroy(term_t *term, pty_t *pty) {
+    // Cleanup resources
+    XFreeGC(term->display, term->graphics_context);
+    XFreeFont(term->display, term->font);
+    XUnmapWindow(term->display, term->window);
+    XDestroyWindow(term->display, term->window);
+    XCloseDisplay(term->display);
+    free(term->buffer);
+    return true;
+}
+
+/*!
+ * \brief Destroys terminal and exit program
+ */
+void term_catch_error(term_t *term, pty_t *pty) {
+    term_destroy(term, pty);
+    exit(1);
 }
 
 /*!
@@ -236,7 +266,8 @@ bool run(term_t *term, pty_t *pty) {
         }
         // PTY Master activity
         if (FD_ISSET(pty->fd_master, &readable)) {
-            term_pty_read(term, pty);
+            if (!term_pty_read(term, pty))
+                running = false;
             term_draw(term);
         }
     }

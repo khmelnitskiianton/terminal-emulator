@@ -28,10 +28,10 @@ Folder with sources: `iksTerm/`
 - Compilation database: `bear`  (`sudo apt install bear`) (optional use with `make compile`)
 
 ```bash
-git clone git@github.com:khmelnitskiianton/terminal-emulator.git # clone
-cd iksTerm    
+git clone https://github.com/khmelnitskiianton/terminal-emulator.git # clone repo
+cd iksTerm
 make # compile program store in "bin/" dir
-make install
+make install # install in $(HOME)/.local/bin
 man iksTerm  # Man page of iksTerm
 iksTerm -h
 ```

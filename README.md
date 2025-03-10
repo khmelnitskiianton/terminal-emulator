@@ -11,7 +11,7 @@ Consist of two programs:
 
 ## iksTerm
 
-![terminal](https://github.com/user-attachments/assets/780017d9-5f8f-49d4-8e3b-e15e2cae9cfa)
+![terminal](https://github.com/user-attachments/assets/69f99875-2bab-4fc2-8fd5-93fd94ac945f)
 
 Written on C using X11 and PTY, simple terminal that launches shell and can run different command.
 
@@ -22,18 +22,17 @@ Folder with sources: `iksTerm/`
 ### Build
 
 **Dependences:**
-
-- Compiler: `gcc`       (`sudo apt install build-essential`)
-- Build util: `make`    (`sudo apt install make`)
-- Graphic system: `X11` (`sudo apt install xorg`)
-
-**Build:**
+- Compiler: `gcc`               (`sudo apt install build-essential`)
+- Build util: `make`            (`sudo apt install make`)
+- Graphic system: `X11`         (`sudo apt install xorg`)
+- Compilation database: `bear`  (`sudo apt install bear`) (optional use with `make compile`)
 
 ```bash
-cd ./iksTerm
-make # compile program in "bin/" dir
+git clone git@github.com:khmelnitskiianton/terminal-emulator.git # clone
+cd iksTerm    
+make # compile program store in "bin/" dir
 make install
-man iksTerm # Man page of iksTerm
+man iksTerm  # Man page of iksTerm
 iksTerm -h
 ```
 

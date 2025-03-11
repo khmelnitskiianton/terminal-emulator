@@ -2,38 +2,37 @@
 #define TERM_H
 
 /*!
- * \brief Keep all information about X11 terminal
+ * @struct term_t
+ * @brief Keep all graphical and buffer information about X11 terminal
  */
 typedef struct term_t {
-    Display *display;
-    int screen;
-    Window root, window;
-    int fd;
-    GC graphics_context;
-    Atom wm_delete;
-    XSizeHints hints;
+    // X11 components
+    Display *display;   ///< Display
+    int screen;         ///< Screen index
+    Window root, window;///< Windows
+    int fd;             ///< File descriptor of terminal
+    GC graphics_context;///< Graphics context
+    Atom wm_delete;     ///< Atom for deleting
+    XSizeHints hints;   ///< Hint to custom resizing
 
     // Color
-    char *hex_color_fg;
-    char *hex_color_bg;
-    char *hex_color_cursor;
-    unsigned long int color_fg, color_bg, color_cursor;
+    char *hex_color_fg;                                ///< Name of fg color
+    char *hex_color_bg;                                ///< Name of bg color
+    char *hex_color_cursor;                            ///< Name of cursor color
+    unsigned long int color_fg, color_bg, color_cursor;///< Number of allocated colors
 
     // Font
-    char *font_name;
-    XFontStruct *font;
-    int font_width, font_height;
+    char *font_name;            ///< Font name
+    XFontStruct *font;          ///< Font structure
+    int font_width, font_height;///< Font maximum sizes
 
     // Buffer
-    char *buffer;
-    int buffer_x, buffer_y;              // cursor
-    int buffer_width, buffer_height;     // cols and rows
-    int buffer_prompt_x, buffer_prompt_y;// where user input begins
-    // Actual terminal size in pixels
-    int width, height;
+    char *buffer;                        ///< Pointer to window buffer
+    int buffer_x, buffer_y;              ///< Cursor position (x,y)
+    int buffer_prompt_x, buffer_prompt_y;///< Prompt begin position
 
-    // Array of pointers to command strings
-    char **history;
+    int buffer_width, buffer_height;///< Size of window in cols and rows
+    int width, height;              ///< Size of window in pixels
 } term_t;
 
 bool term_init(term_t *term);

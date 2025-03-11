@@ -3,6 +3,7 @@
 ifeq ($(origin CC),default)
 	CC=gcc
 endif
+
 #Name of compiled executable
 NAME = iksTerm
 #name of dir where all build files will be stored
@@ -13,14 +14,19 @@ OBJDIR = $(BUILDDIR)/obj
 INCLUDEDIR = include
 #Name of directory with .c
 SRCDIR = src
-#Name of json file to store info about generaions for clangd
-COMPILEJSON = compile_commands.json
-#Install dir
-PREFIX ?= $(HOME)/.local
-INSTALL_DIR := $(PREFIX)/bin
-# Use MAN_DIR from environment if set, otherwise default to /usr/local/share/man/man1
-MAN_DIR ?= /usr/local/share/man/man1
+#Name of json file to store info about generations for clangd
+COMPILEJSON = $(BUILDDIR)/compile_commands.json
 
+#Install dir
+INSTALL_DIR := $(HOME)/.local/bin
+
+# Use MAN_DIR from environment if set, otherwise default to /usr/local/share/man/man1
+MANDIR ?= /usr/local/share/man/man1
+MANFILE = iksTerm.1
+
+# Doxygen file and dir
+DOXYDIR = Doxygen
+DOXYFILE = Doxyfile
 
 #CFLAGS_DEBUG_LINUX = -D _DEBUG -DDEBUG -DNDEBUG -ggdb3 -O0 -Wall -Wextra										\
 #				-Waggressive-loop-optimizations -Wmissing-declarations -Wcast-align 							\
@@ -53,7 +59,7 @@ DBGEXE = $(DBGDIR)/$(NAME)
 RELDIR = bin
 RELEXE = $(RELDIR)/$(NAME)
 
-.PHONY: all init compile clean debug release install man
+.PHONY: all init compile clean debug release install man doxygen
 
 all: init release
 
@@ -75,22 +81,26 @@ init:
 	@mkdir -p $(BUILDDIR) $(OBJDIR) $(RELDIR)
 
 compile: init
-	bear --output $(BUILDDIR)/$(COMPILEJSON) -- make release
+	bear --output $(COMPILEJSON) -- make release
 
-#Deletes all object and .d files
+# Deletes all object and .d files
 clean:
 	$(CMD_DEL)
 
-install: man
+# Install with man
+install:
 	@echo "Installing $(RELEXE) to $(INSTALL_DIR)"
 	@install -d $(INSTALL_DIR)
 	@install -m 755 $(RELEXE) $(INSTALL_DIR)
 	@echo "Installation complete"
-
+# Add progect man page for Man
 man:
-	sudo cp ./iksTerm.1 $(MAN_DIR)/
+	sudo cp $(MANFILE) $(MANDIR)/
 	sudo mandb
 
+doxygen:
+	@mkdir -p $(DOXYDIR)
+	doxygen $(DOXYFILE)
 #====================================================================
 
 #Main target to compile executable
@@ -116,7 +126,7 @@ $(DEPS) : $(OBJDIR)/%.d : $(SRCDIR)/%.c
 
 #====================================================================
 # Var consist of all aims that dont need to update deps!!!
-NODEPS = clean init install man
+NODEPS = clean init install man doxygen
 
 #Includes make dependencies
 ifeq (0, $(words $(findstring $(MAKECMDGOALS), $(NODEPS))))

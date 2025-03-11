@@ -2,16 +2,17 @@
 #define TERM_PTY_H
 
 /*!
- * \brief Keep fd of master and slave in PTY
+ * @struct pty_t
+ * @brief Keep fd of master and slave in PTY
  */
 typedef struct pty_t {
     // Shell
-    char *shell_path;
-    char *shell_name;
+    char *shell_path;///< The shell path.
+    char *shell_name;///< The shell name.
     // Master and slave file descriptors
-    int fd_master;
-    int fd_slave;
-    pid_t pid;
+    int fd_master;///< The master file descriptor.
+    int fd_slave; ///< The slave file descriptor.
+    pid_t pid;    ///< The PID of shell process.
 } pty_t;
 
 bool pty_new(pty_t *pty);

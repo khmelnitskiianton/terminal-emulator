@@ -26,7 +26,7 @@ int main(int argc, char **argv) {
     if (!run(&term, &pty))
         return 1;
     // Destroy X11 window
-    if (!term_destroy(&term,&pty))
+    if (!term_destroy(&term, &pty))
         return 1;
     return 0;
 }

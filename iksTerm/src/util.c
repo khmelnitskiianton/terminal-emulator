@@ -16,7 +16,7 @@
 #include <util.h>
 
 /*!
- * \brief Get and setup options
+ * \brief Get and process options
  */
 void get_options(term_t *term, pty_t *pty, int argc, char **argv) {
     // Scan options

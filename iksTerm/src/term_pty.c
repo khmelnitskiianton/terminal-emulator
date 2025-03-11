@@ -1,10 +1,10 @@
 #include <pty.h>
 #include <stdbool.h>
 #include <stdio.h>
-#include <termios.h>
-#include <unistd.h>
 #include <stdlib.h>
 #include <sys/wait.h>
+#include <termios.h>
+#include <unistd.h>
 
 #include <X11/Xutil.h>
 
@@ -65,11 +65,11 @@ bool pty_new(pty_t *pty) {
         tios.c_cc[VERASE] =
             0x08;// Set that driver clean from buffer backspace symbol like VERASE, to have `ls` except of `ls \b s`
 
-        // Disabling the output of control characters in the form of carriage notation.
-        // ECHOCTL (sometimes called ECHOE or ECHOECTL) is responsible for displaying ^M instead of the CR character.
-        #ifdef ECHOCTL
-            tios.c_lflag &= (uint) ~ECHOCTL;
-        #endif
+// Disabling the output of control characters in the form of carriage notation.
+// ECHOCTL (sometimes called ECHOE or ECHOECTL) is responsible for displaying ^M instead of the CR character.
+#ifdef ECHOCTL
+        tios.c_lflag &= (uint) ~ECHOCTL;
+#endif
         if (tcsetattr(pty->fd_slave, TCSANOW, &tios) == -1) {
             perror("tcsetattr");
             return false;
@@ -113,6 +113,9 @@ bool term_resize(term_t *term, pty_t *pty, XEvent *event) {
     return true;
 }
 
+/*!
+ * \brief Send size of terminal to driver
+ */
 bool pty_resize(term_t *term, pty_t *pty) {
     /* 
      * Create system struct with sizes of our window
@@ -158,7 +161,7 @@ void term_pty_write(pty_t *pty, XKeyEvent *ev) {
 bool term_pty_read(term_t *term, pty_t *pty) {
     char buf_read[READ_BUFFER_SIZE];
     ssize_t n = read(pty->fd_master, buf_read, sizeof(buf_read));
-    
+
     // EOF indicates that the slave has closed.
     if (n <= 0) {
         return false;
@@ -202,7 +205,7 @@ bool term_destroy(term_t *term, pty_t *pty) {
 }
 
 /*!
- * \brief Destroys terminal and exit program
+ * \brief Catch error with destroying
  */
 void term_catch_error(term_t *term, pty_t *pty) {
     term_destroy(term, pty);

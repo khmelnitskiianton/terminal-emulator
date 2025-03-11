@@ -80,6 +80,9 @@ bool term_init(term_t *term) {
     return true;
 }
 
+/*!
+ * \brief Realloc and move buffer while resizing
+ */
 bool term_move_buffer(term_t *term, int new_buffer_width, int new_buffer_height) {
     char *new_buffer = calloc((long unsigned int) new_buffer_width * (long unsigned int) new_buffer_height, sizeof(char));
     if (!new_buffer) {
@@ -183,7 +186,6 @@ void term_scroll_buffer(term_t *term) {
  * \brief Process data from PTY and changes buffer
  */
 void term_output(term_t *term, char *buf, ssize_t n) {
-    
     // printf("Read:\n");
     // for (ssize_t i = 0; i < n; i++) {
     //     printf("%d ", buf[i]);
@@ -255,6 +257,10 @@ void term_output(term_t *term, char *buf, ssize_t n) {
     }
 }
 
+/*!
+ * \brief Process ESC sequences
+ *  Note: now it can process only: `ESC [ H` `ESC [ 2 J` `ESC [ 3 J`
+ */
 ssize_t term_parse_esc(term_t *term, char *buf) {
     ssize_t curr_index = 0;
     if (buf[curr_index] != '\033')
@@ -285,15 +291,24 @@ ssize_t term_parse_esc(term_t *term, char *buf) {
     return curr_index;
 }
 
+/*!
+ * \brief Set cursor to (0,0)
+ */
 void handle_cursor_home(term_t *term) {
     term->buffer_x = 0;
     term->buffer_y = 0;
 }
 
+/*!
+ * \brief Clear window buffer`
+ */
 void handle_clear_screen(term_t *term) {
     memset(term->buffer, '\0', (size_t) term->buffer_height * (size_t) term->buffer_width);
 }
 
+/*!
+ * \brief Set colors in initialize
+ */
 void term_set_color(term_t *term) {
     // Color for foreground, background, cursor
     Colormap cmap = 0;
@@ -315,6 +330,9 @@ void term_set_color(term_t *term) {
     term->color_cursor = color.pixel;
 }
 
+/*!
+ * \brief Create fonts
+ */
 void term_set_font(term_t *term) {
     if (!term->font_name)
         term->font_name = DEFAULT_FONT;
@@ -329,6 +347,9 @@ void term_set_font(term_t *term) {
     term->font_height = term->font->ascent + term->font->descent * 2;// Total vertical space
 }
 
+/*!
+ * \brief Create window buffer
+ */
 bool term_set_buffer(term_t *term) {
     // Have max width/height of screen
     int max_width = DisplayWidth(term->display, term->screen) / term->font_width;

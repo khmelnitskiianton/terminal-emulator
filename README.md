@@ -22,17 +22,18 @@ Folder with sources: `iksTerm/`
 ### Build
 
 **Dependences:**
-- Compiler: `gcc`               (`sudo apt install build-essential`)
-- Build util: `make`            (`sudo apt install make`)
-- Graphic system: `X11`         (`sudo apt install xorg`)
-- Compilation database: `bear`  (`sudo apt install bear`) (optional use with `make compile`)
+- Compiler: `gcc`                    (`sudo apt install build-essential`)
+- Build util: `make`                 (`sudo apt install make`)
+- Graphic system: `X11`              (`sudo apt install xorg`)
+- Compilation database: `bear`       (`sudo apt install bear`)    (optional use with `make compile`)
+- Automated documentation: `doxygen` (`sudo apt install doxygen`) (optional use with `make doxygen`) `Doxygen/index.html`
+- Manual: `man`                      (`sudo apt install man`)     (optional use with `make man`)     `man iksTerm`
 
 ```bash
 git clone https://github.com/khmelnitskiianton/terminal-emulator.git # clone repo
 cd iksTerm
 make # compile program store in "bin/" dir
-make install # install in $(HOME)/.local/bin
-man iksTerm  # Man page of iksTerm
+make install
 iksTerm -h
 ```
 

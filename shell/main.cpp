@@ -1,14 +1,26 @@
+#include <iostream>
 #include "shell.hpp"
 
 int main()
 {
-    Shell shell();
-    bool status = false;
-    do
+    try
     {
-        status = shell.processLine();
-        status = shell.executeCommand();
-    } while (status);
+        Shell shell;
+        bool status = false;
+        do
+        {
+            status = shell.processLine();
+            if (status == false)
+                break;
 
-    return 0;
+            shell.executeCommand();
+        } while (status);
+    }
+    catch (std::exception& e)
+    {
+        std::cerr << e.what() << std::endl;
+        return EXIT_FAILURE;
+    }
+
+    return EXIT_SUCCESS;
 }

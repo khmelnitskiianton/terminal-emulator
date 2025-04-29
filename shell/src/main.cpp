@@ -9,10 +9,8 @@ int main()
         bool status = false;
         do
         {
+            std::cerr << "next command\n";
             status = shell.processLine();
-            if (status == false)
-                break;
-
             shell.executeCommand();
         } while (status);
     }

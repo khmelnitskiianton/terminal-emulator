@@ -14,6 +14,7 @@ class Shell
     {
         NONE = 0,
         CD   = 1,
+        EXIT = 2,
         NUMBER_COMMANDS
     };
 
@@ -26,7 +27,8 @@ class Shell
     constexpr static CommandInfo COMMANDS[NUMBER_COMMANDS]
     {
         {NONE},
-        {CD, "cd"}
+        {CD, "cd"},
+        {EXIT, "exit"}
     };
 
     class InternalCommand
@@ -53,6 +55,15 @@ class Shell
         }
     };
 
+    class ExitCommand : public InternalCommand
+    {
+     public:
+        void execute(const std::vector<char*>& argv) override
+        {
+            exit(EXIT_SUCCESS);
+        }
+    };
+
     std::string currentLine;
     std::vector<std::string> words;
     size_t numberPrograms = 0;
@@ -64,6 +75,8 @@ class Shell
         {
             case CD:
                 return std::unique_ptr<CDcommand> (new CDcommand());
+            case EXIT:
+                return std::unique_ptr<ExitCommand> (new ExitCommand());
             default:
                 return nullptr;
         }
@@ -136,6 +149,7 @@ class Shell
             splitSentence(currentLine);
             return true;
         }
+
         return false;
     }
 

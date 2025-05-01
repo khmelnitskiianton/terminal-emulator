@@ -1,0 +1,3 @@
+// the configured options and settings for Shell
+#define Shell_VERSION_MAJOR @Shell_VERSION_MAJOR@
+#define Shell_VERSION_MINOR @Shell_VERSION_MINOR@

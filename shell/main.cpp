@@ -1,4 +1,5 @@
 #include <iostream>
+#include "ShellConfig.h"
 #include "shell.hpp"
 
 int main()
@@ -9,7 +10,7 @@ int main()
         bool status = false;
         do
         {
-            std::cerr << "next command\n";
+            std::cerr << "> ";
             status = shell.processLine();
             shell.executeCommand();
         } while (status);

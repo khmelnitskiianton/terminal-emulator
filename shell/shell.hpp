@@ -132,6 +132,52 @@ class Shell
         ++numberPrograms;
     }
 
+    void executeExternalCommands()
+    {
+        int pipes[numberPrograms][2];
+
+        for (size_t pipeIndex = 0; pipeIndex < numberPrograms; pipeIndex++)
+            pipe(pipes[pipeIndex]);
+
+        pid_t pids[numberPrograms];
+        for (size_t programNumber = 0; programNumber < numberPrograms; ++programNumber)
+        {
+            pid_t pid;
+
+            if ((pid = fork()) < 0)
+            {
+                throw std::runtime_error("Forking child process failed.");
+            }
+
+            if (pid == 0)
+            {
+                if (programNumber > 0)
+                    dup2(pipes[programNumber - 1][0], STDIN_FILENO);
+                if (programNumber + 1 < numberPrograms)
+                    dup2(pipes[programNumber][1], STDOUT_FILENO);
+
+                closePrevPipes(pipes, programNumber);
+
+                if (execvp(argv.at(programNumber).at(0), argv.at(programNumber).data()) < 0)
+                    throw std::runtime_error("Child: Exec child process failed.");
+            }
+            else
+            {
+                pids[programNumber] = pid;
+            }
+        }
+
+        closePrevPipes(pipes, numberPrograms);
+
+        for (size_t processNumber = 0; processNumber < numberPrograms; ++processNumber)
+        {
+            int status = 0;
+            waitpid(pids[processNumber], &status, 0);
+            if (status)
+                throw std::runtime_error("Parent: Dead child status.");
+        }
+    }
+
     static void closePrevPipes(int pipes[][2], int numberChannels)
     {
         for (int channelNumber = 0; channelNumber < numberChannels; ++channelNumber)
@@ -165,48 +211,7 @@ class Shell
         }
         else
         {
-            int pipes[numberPrograms][2];
-
-            for (size_t pipeIndex = 0; pipeIndex < numberPrograms; pipeIndex++)
-                pipe(pipes[pipeIndex]);
-
-            pid_t pids[numberPrograms];
-            for (size_t programNumber = 0; programNumber < numberPrograms; ++programNumber)
-            {
-                pid_t pid;
-
-                if ((pid = fork()) < 0)
-                {
-                    throw std::runtime_error("Forking child process failed.");
-                }
-
-                if (pid == 0)
-                {
-                    if (programNumber > 0)
-                        dup2(pipes[programNumber - 1][0], STDIN_FILENO);
-                    if (programNumber + 1 < numberPrograms)
-                        dup2(pipes[programNumber][1], STDOUT_FILENO);
-
-                    closePrevPipes(pipes, programNumber);
-
-                    if (execvp(argv.at(programNumber).at(0), argv.at(programNumber).data()) < 0)
-                        throw std::runtime_error("Child: Exec child process failed.");
-                }
-                else
-                {
-                    pids[programNumber] = pid;
-                }
-            }
-
-            closePrevPipes(pipes, numberPrograms);
-
-            for (size_t processNumber = 0; processNumber < numberPrograms; ++processNumber)
-            {
-                int status = 0;
-                waitpid(pids[processNumber], &status, 0);
-                if (status)
-                    throw std::runtime_error("Parent: Dead child status.");
-            }
+            executeExternalCommands();
         }
 
         clearMem();

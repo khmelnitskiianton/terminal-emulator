@@ -7,6 +7,13 @@ ParaShell has several internal commands:
 
 and also provides extensible interface for adding new commands. Implemented using C++ inheritance.
 
+### Dependencies
+- Compiler: C++11 compatible compiler (GCC ≥ 4.8.1 or Clang ≥ 3.3)
+
+- Build system: CMake ≥ 3.10
+
+- System libraries: Standard POSIX environment (Linux/Unix)
+
 ### Build
 1. After cloning this repo:
 ```

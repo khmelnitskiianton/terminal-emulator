@@ -7,7 +7,7 @@ A simple implementation of a terminal emulator for Linux, featuring a GUI termin
 Consist of two programs:
 
 - `iksTerm` - X11 terminal that you can launch on any shell or program.
-- `iksSh`   - simple shell.
+- `paraShell`   - simple shell.
 
 ## iksTerm
 

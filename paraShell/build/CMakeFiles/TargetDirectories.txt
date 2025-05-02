@@ -1,0 +1,3 @@
+/home/maksim/Projects/terminal-emulator/parashell/build/CMakeFiles/shell.dir
+/home/maksim/Projects/terminal-emulator/parashell/build/CMakeFiles/edit_cache.dir
+/home/maksim/Projects/terminal-emulator/parashell/build/CMakeFiles/rebuild_cache.dir

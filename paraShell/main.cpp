@@ -1,20 +1,15 @@
-#include <iostream>
 #include "ShellConfig.h"
 #include "shell.hpp"
+#include <iostream>
 
-int main()
-{
-    try
-    {
+int main() {
+    try {
         Shell shell;
-        do
-        {
+        do {
             std::cerr << "> ";
             shell.execute();
         } while (true);
-    }
-    catch (std::exception& e)
-    {
+    } catch (std::exception &e) {
         std::cerr << e.what() << std::endl;
         return EXIT_FAILURE;
     }

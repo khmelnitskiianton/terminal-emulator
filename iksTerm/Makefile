@@ -18,7 +18,7 @@ SRCDIR = src
 COMPILEJSON = $(BUILDDIR)/compile_commands.json
 
 #Install dir
-INSTALL_DIR := $(HOME)/.local/bin
+INSTALL_DIR := /usr/bin
 
 # Use MAN_DIR from environment if set, otherwise default to /usr/local/share/man/man1
 MANDIR ?= /usr/local/share/man/man1

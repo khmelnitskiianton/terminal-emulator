@@ -7,13 +7,11 @@ int main()
     try
     {
         Shell shell;
-        bool status = false;
         do
         {
             std::cerr << "> ";
-            status = shell.processLine();
-            shell.executeCommand();
-        } while (status);
+            shell.execute();
+        } while (true);
     }
     catch (std::exception& e)
     {

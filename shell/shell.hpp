@@ -10,6 +10,45 @@
 
 class Shell
 {
+    enum ShellError
+    {
+        ERROR_OK = 0,
+        ERROR_GET_INTERNAL = 1,
+        ERROR_EXEC_CHILD = 2,
+        ERROR_STATUS_CHILD = 3,
+        ERROR_CHANGE_DIR = 4,
+        ERROR_MOVE_HOME = 5,
+        ERROR_FORK = 6
+    };
+
+    const char *get_error_msg(ShellError error)
+    {
+        switch (error)
+        {
+            case ERROR_OK:
+                return "No error.";
+            case ERROR_GET_INTERNAL:
+                return "Error allocating internal command object.";
+            case ERROR_EXEC_CHILD:
+                return "Execvp return error.";
+            case ERROR_STATUS_CHILD:
+                return "Child return error.";
+            case ERROR_CHANGE_DIR:
+                return "CD change directory error.";
+            case ERROR_MOVE_HOME:
+                return "Error cd without args (move to home directory).";
+            case ERROR_FORK:
+                return "Fork error.";
+            default:
+                return "Unknow error type.";
+        }
+    }
+
+    void print_error(ShellError error)
+    {
+        std::cerr << get_error_msg(error) << std::endl;
+    }
+
     enum CommandNumber
     {
         NONE = 0,
@@ -34,31 +73,33 @@ class Shell
     class InternalCommand
     {
      public:
-        virtual void execute(const std::vector<char*>& argv) = 0;
+        virtual ShellError execute(const std::vector<char*>& argv) = 0;
     };
 
     class CDcommand : public InternalCommand
     {
      public:
-        void execute(const std::vector<char*>& argv) override
+        ShellError execute(const std::vector<char*>& argv) override
         {
             if (argv.at(1) == nullptr) // cd without arguments => move to home directory
             {
                 if (chdir(getenv("HOME")) < 0)
-                    throw std::runtime_error("Error moving to home directory.");
+                    return ERROR_MOVE_HOME;
             }
             else
             {
                 if (chdir(argv.at(1)) < 0)
-                    throw std::runtime_error("Error changing directory.");
+                    return ERROR_CHANGE_DIR;
             }
+
+            return ERROR_OK;
         }
     };
 
     class ExitCommand : public InternalCommand
     {
      public:
-        void execute(const std::vector<char*>& argv) override
+        ShellError execute(const std::vector<char*>& argv) override
         {
             exit(EXIT_SUCCESS);
         }
@@ -132,7 +173,7 @@ class Shell
         ++numberPrograms;
     }
 
-    void executeExternalCommands()
+    ShellError executeExternalCommands()
     {
         int pipes[numberPrograms][2];
 
@@ -146,7 +187,7 @@ class Shell
 
             if ((pid = fork()) < 0)
             {
-                throw std::runtime_error("Forking child process failed.");
+                return ERROR_FORK;
             }
 
             if (pid == 0)
@@ -159,7 +200,7 @@ class Shell
                 closePrevPipes(pipes, programNumber);
 
                 if (execvp(argv.at(programNumber).at(0), argv.at(programNumber).data()) < 0)
-                    throw std::runtime_error("Child: Exec child process failed.");
+                    return ERROR_EXEC_CHILD;
             }
             else
             {
@@ -174,8 +215,10 @@ class Shell
             int status = 0;
             waitpid(pids[processNumber], &status, 0);
             if (status)
-                throw std::runtime_error("Parent: Dead child status.");
+                return ERROR_STATUS_CHILD;
         }
+
+        return ERROR_OK;
     }
 
     static void closePrevPipes(int pipes[][2], int numberChannels)
@@ -187,10 +230,9 @@ class Shell
         }
     }
 
- public:
     bool processLine()
     {
-        if (std::getline(std::cin, currentLine, '\n'))
+        if (std::getline(std::cin, currentLine, '\n') && currentLine.size())
         {
             splitSentence(currentLine);
             return true;
@@ -199,19 +241,35 @@ class Shell
         return false;
     }
 
-    void executeCommand()
+    ShellError executeCommand()
     {
+        ShellError error = ERROR_OK;
         if (CommandNumber command = internalCommand(argv.at(0)))
         {
             std::unique_ptr<InternalCommand> commandObject = getCommandObject(command);
             if (!commandObject)
-                throw std::runtime_error("Failed getting internal command number.");
+                return ERROR_GET_INTERNAL;
 
-            commandObject->execute(argv.at(0));
+            error = commandObject->execute(argv.at(0));
         }
         else
         {
-            executeExternalCommands();
+            error = executeExternalCommands();
+        }
+
+        return error;
+    }
+
+ public:
+    void execute()
+    {
+        if (!processLine())
+            return;
+
+        ShellError error = executeCommand();
+        if (error)
+        {
+            print_error(error);
         }
 
         clearMem();

@@ -21,7 +21,7 @@ Terminal-emulation consist of 3 elements:
 
 The shell is a program that provides an interface to the operating system, allowing the user to interact with its file-system, run processes and often have access to basic scripting capabilities.
 
-The terminal emulator is a graphical application whose role it is to interpret data coming from the shell and display it on screen. 
+The terminal emulator is a graphical application whose role it is to interpret data coming from the shell and display it on screen.
 
 PTY is a bi-directional asynchronous communication channel between the terminal and shell.
 
@@ -43,10 +43,10 @@ One channel of the pty represents the communication directed from the terminal e
 
 **Creation:**
 
-1. Create master-slave pair of file destructors with PTY master device that provides by Linux Core using syscalls or standard pty functions. 
+1. Create master-slave pair of file destructors with PTY master device that provides by Linux Core using syscalls or standard pty functions.
 2. Create new process for shell
 3. Create new session for it, make terminal controlling for this terminal and change stdin,stdout,stderr to slave fd.
- 
+
 As the result we have channel between X11 Terminal and Shell
 
 ## Result
@@ -67,3 +67,5 @@ In basic version we have:
 - [ ] UTF-8 except of ASCII
 - [ ] Keep history and get it by arrows
 - [x] Handle more control chars (`\b`)
+
+***

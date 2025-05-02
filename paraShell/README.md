@@ -4,6 +4,7 @@ A shell parody for Linux. This project is implemented using fork and pipes. Writ
 ParaShell has several internal commands:
 - change directory (cd)
 - exit
+
 and also provides extensible interface for adding new commands. Implemented using C++ inheritance.
 
 ### Build

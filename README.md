@@ -2,16 +2,16 @@
 
 ![License](https://img.shields.io/github/license/khmelnitskiianton/terminal-emulator)
 
-A simple implementation of a terminal emulator for Linux, featuring a GUI terminal (`iksTerm`) and a basic shell (`iksSh`).
+A simple implementation of a terminal emulator for Linux, featuring a GUI terminal (`iksTerm`) and a basic shell (`paraShell`).
 
 Consist of two programs:
 
 - `iksTerm` - X11 terminal that you can launch on any shell or program.
 - `paraShell`   - simple shell.
 
-## iksTerm
-
 ![terminal](https://github.com/user-attachments/assets/69f99875-2bab-4fc2-8fd5-93fd94ac945f)
+
+## iksTerm
 
 Written on C using X11 and PTY, simple terminal that launches shell and can run different command.
 
@@ -21,7 +21,8 @@ Folder with sources: `iksTerm/`
 
 ### Build
 
-**Dependences:**
+#### Dependencies
+
 - *Compiler*: `gcc` \
 `sudo apt install build-essential`
 - *Build util*: `make` \
@@ -38,50 +39,55 @@ Folder with sources: `iksTerm/`
 `sudo apt install man` \
 (optional use with `make man`) `man iksTerm`
 
-**Installation**:
+#### Installation
+
+*Build:*
 ```bash
 git clone https://github.com/khmelnitskiianton/terminal-emulator.git # clone repo
 cd iksTerm
 make # compile program store in "bin/" dir
+./bin/iksTerm -h # local run
+```
+
+*Installation:*
+```bash
 make install # install in $HOME/.local/bin
 iksTerm -h
 ```
 
 ## paraShell
 
-A shell parody for Linux. This project is implemented using fork and pipes. Written in C++ (since C++11 standart).
+A simple shell for Linux. This project is implemented using fork and pipes. Written in C++ (since C++11 standart).
 ParaShell has several internal commands:
-- change directory (cd)
-- exit
+
+- `cd` - change directory
+- `exit` - exit from shell
 
 and also provides extensible interface for adding new commands. Implemented using C++ inheritance.
 
-### Dependencies
+### Build
+
+#### Dependencies
+
 - Compiler: C++11 compatible compiler (GCC ≥ 4.8.1 or Clang ≥ 3.3)
 
 - Build system: CMake ≥ 3.10
 
 - System libraries: Standard POSIX environment (Linux/Unix)
 
-### Build
-1. After cloning this repo:
-```
+#### Installation
+
+*Build:*
+```bash
 cd terminal-emulator/paraShell
-```
-2. Generate makefile:
-```
 cmake -S . -B build
-```
-3. Build:
-```
 cmake --build build
-```
-4. Run:
-```
 build/paraShell
 ```
-*to run from any directory*:
-```
+
+*Installation:*
+```bash
+cd terminal-emulator/paraShell
 chmod +x ./install.sh
 ./install.sh
 ```

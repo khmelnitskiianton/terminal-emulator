@@ -1,6 +1,5 @@
-#include "ShellConfig.h"
-#include "shell.hpp"
 #include <iostream>
+#include "shell.hpp"
 
 int main() {
     try {

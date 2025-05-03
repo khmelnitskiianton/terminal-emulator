@@ -4,4 +4,6 @@ iksTerm/release/
 iksTerm/bin/
 iksTerm/.cache/
 iksTerm/Doxygen/
-shell/build
+paraShell/build
+.cache/
+.vscode/

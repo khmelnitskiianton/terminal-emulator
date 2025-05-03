@@ -9,9 +9,9 @@ Consist of two programs:
 - `iksTerm` - X11 terminal that you can launch on any shell or program.
 - `paraShell`   - simple shell.
 
-![terminal](https://github.com/user-attachments/assets/69f99875-2bab-4fc2-8fd5-93fd94ac945f)
-
 ## iksTerm
+
+![iksTerm](https://github.com/user-attachments/assets/69f99875-2bab-4fc2-8fd5-93fd94ac945f)
 
 Written on C using X11 and PTY, simple terminal that launches shell and can run different command.
 
@@ -56,6 +56,8 @@ iksTerm -h
 ```
 
 ## paraShell
+
+![paraShell](.media/image.png)
 
 A simple shell for Linux. This project is implemented using fork and pipes. Written in C++ (since C++11 standart).
 ParaShell has several internal commands:

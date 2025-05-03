@@ -51,7 +51,7 @@ make # compile program store in "bin/" dir
 
 *Installation:*
 ```bash
-make install # install in $HOME/.local/bin
+sudo make install # install in /usr/bin
 iksTerm -h
 ```
 
@@ -79,8 +79,9 @@ and also provides extensible interface for adding new commands. Implemented usin
 
 #### Installation
 
-*Build:*
+*Local build:*
 ```bash
+git clone https://github.com/khmelnitskiianton/terminal-emulator.git # clone repo
 cd terminal-emulator/paraShell
 cmake -S . -B build
 cmake --build build
@@ -91,7 +92,29 @@ build/paraShell
 ```bash
 cd terminal-emulator/paraShell
 chmod +x ./install.sh
-./install.sh
+sudo ./install.sh # install in /usr/bin
+```
+
+## Docker
+
+If you want to build & install this project in isolated container and see terminal you can use our docker.
+
+*Install Docker:*
+
+```bash
+sudo apt install docker.io
+```
+
+*Build docker image:*
+
+```bash
+sudo docker build -t iksterm .
+xhost +local:docker
+```
+*Run terminal in container:*
+
+```bash
+sudo docker run --rm -it --net=host -e DISPLAY iksterm
 ```
 
 ## License
